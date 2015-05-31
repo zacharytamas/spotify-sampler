@@ -1,9 +1,11 @@
-package com.zacharytamas.spotifysampler;
+package com.zacharytamas.spotifysampler.activities;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.zacharytamas.spotifysampler.R;
 
 
 public class ArtistSearchActivity extends ActionBarActivity {
