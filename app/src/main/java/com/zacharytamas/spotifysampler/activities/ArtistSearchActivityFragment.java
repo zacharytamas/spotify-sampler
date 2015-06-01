@@ -3,10 +3,12 @@ package com.zacharytamas.spotifysampler.activities;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ListView;
 
 import com.zacharytamas.spotifysampler.R;
@@ -25,6 +27,8 @@ public class ArtistSearchActivityFragment extends Fragment {
 
     private ListView mListView;
     private ArtistSearchAdapter mAdapter;
+    private EditText mSearchBox;
+    private FetchArtistsTask mFetchTask;
 
     public ArtistSearchActivityFragment() {
     }
@@ -38,13 +42,33 @@ public class ArtistSearchActivityFragment extends Fragment {
         mAdapter = new ArtistSearchAdapter(getActivity());
         mListView.setAdapter(mAdapter);
 
-        this.fetchArtists("Ed Sheeran");
+        mSearchBox = (EditText) view.findViewById(R.id.searchBox);
+        mSearchBox.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (charSequence.length() > 0) {
+                    fetchArtists(charSequence.toString());
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) { }
+        });
 
         return view;
     }
 
     public void fetchArtists(String query) {
-        new FetchArtistsTask().execute(query);
+        // Poor man's debounce:
+        // If there is an existing task that hasn't completed, cancel it.
+        if (mFetchTask != null && mFetchTask.getStatus() != AsyncTask.Status.FINISHED) {
+            mFetchTask.cancel(true);
+        }
+        mFetchTask = new FetchArtistsTask();
+        mFetchTask.execute(query);
     }
 
     private class FetchArtistsTask extends AsyncTask<String, Void, List> {
