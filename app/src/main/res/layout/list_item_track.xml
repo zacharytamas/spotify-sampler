@@ -2,8 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="?attr/listPreferredItemHeightLarge"
-    android:layout_marginLeft="?attr/listPreferredItemPaddingLeft"
-    android:layout_marginRight="?attr/listPreferredItemPaddingRight"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
     android:orientation="horizontal">
 
     <ImageView android:id="@+id/albumImage"
