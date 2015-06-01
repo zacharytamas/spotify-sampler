@@ -1,5 +1,6 @@
 package com.zacharytamas.spotifysampler.activities;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,6 +9,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -18,6 +20,7 @@ import java.util.List;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
+import kaaes.spotify.webapi.android.models.Artist;
 
 
 /**
@@ -56,6 +59,16 @@ public class ArtistSearchActivityFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) { }
+        });
+
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Artist artist = (Artist) adapterView.getAdapter().getItem(i);
+                Intent intent = new Intent(getActivity(), TopTrackListActivity.class);
+                intent.putExtra("artistId", artist.id);
+                startActivity(intent);
+            }
         });
 
         return view;
