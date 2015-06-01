@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,8 +41,16 @@ public class TopTrackListActivityFragment extends Fragment {
         mAdapter = new TopTracksAdapter(getActivity());
         mListView.setAdapter(mAdapter);
 
+
+
         Intent intent = getActivity().getIntent();
         String artistId = intent.getStringExtra("artistId");
+        String artistName = intent.getStringExtra("artistName");
+
+        if (artistName != null) {
+            ActionBarActivity activity = (ActionBarActivity) getActivity();
+            activity.getSupportActionBar().setSubtitle(artistName);
+        }
 
         if (artistId != null) {
             this.fetchTracks(artistId);
