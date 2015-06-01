@@ -91,7 +91,6 @@ public class ArtistSearchActivityFragment extends Fragment {
         protected void onPostExecute(List list) {
             mAdapter.clear();
             mAdapter.addAll(list);
-            Log.i("ArtistSearch", list.toString());
         }
     }
 
