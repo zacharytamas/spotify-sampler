@@ -52,6 +52,9 @@ public class ArtistSearchAdapter extends ArrayAdapter<Artist> {
             Picasso.with(this.getContext()).load(artist.images.get(0).url).into(holder.artistImage);
         } else {
             // TODO Handle when there is no image. Maybe put a default empty one.
+            // Here I am setting a blank photo because since these are re-used it could
+            // be an old photo here.
+            holder.artistImage.setImageResource(android.R.color.transparent);
         }
 
         return convertView;
