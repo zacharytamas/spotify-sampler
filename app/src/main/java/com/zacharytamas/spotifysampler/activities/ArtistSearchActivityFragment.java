@@ -24,9 +24,11 @@ import kaaes.spotify.webapi.android.models.Artist;
 
 
 /**
- * A placeholder fragment containing a simple view.
+ * Fragment providing functionality for searching for Artists.
  */
 public class ArtistSearchActivityFragment extends Fragment {
+
+    static final String QUERY_KEY = "query";
 
     private ListView mListView;
     private ArtistSearchAdapter mAdapter;
@@ -37,13 +39,23 @@ public class ArtistSearchActivityFragment extends Fragment {
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString(QUERY_KEY, mSearchBox.getText().toString());
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_artist_search, container, false);
+        final View view = inflater.inflate(R.layout.fragment_artist_search, container, false);
 
         mListView = (ListView) view.findViewById(R.id.artistListView);
         mAdapter = new ArtistSearchAdapter(getActivity());
         mListView.setAdapter(mAdapter);
+        mListView.setEmptyView(view.findViewById(R.id.empty));
+        // Hide it by default until they type a query that has no results.
+        // TODO I don't like this but it will do for the moment.
+        view.findViewById(R.id.empty).setVisibility(View.INVISIBLE);
 
         mSearchBox = (EditText) view.findViewById(R.id.searchBox);
         mSearchBox.addTextChangedListener(new TextWatcher() {
@@ -54,6 +66,9 @@ public class ArtistSearchActivityFragment extends Fragment {
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if (charSequence.length() > 0) {
                     fetchArtists(charSequence.toString());
+                } else {
+                    mAdapter.clear();
+                    view.findViewById(R.id.empty).setVisibility(View.INVISIBLE);
                 }
             }
 
@@ -71,6 +86,10 @@ public class ArtistSearchActivityFragment extends Fragment {
                 startActivity(intent);
             }
         });
+
+        if (savedInstanceState != null) {
+            mSearchBox.setText(savedInstanceState.getString(QUERY_KEY, ""));
+        }
 
         return view;
     }
@@ -94,7 +113,7 @@ public class ArtistSearchActivityFragment extends Fragment {
             }
 
             // TODO Possibly move this to be a member at the Fragment level
-            // so we don't need to create one every time.
+            // so we don't need to create one every time. Maybe even a singleton app-wide.
             SpotifyApi api = new SpotifyApi();
             SpotifyService spotifyService = api.getService();
 

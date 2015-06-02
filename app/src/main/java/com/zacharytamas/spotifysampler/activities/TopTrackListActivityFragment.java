@@ -22,11 +22,11 @@ import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Tracks;
 
 /**
- * A placeholder fragment containing a simple view.
+ * Fragment providing functionality that lists all an Artist's
+ * top tracks, if available.
  */
 public class TopTrackListActivityFragment extends Fragment {
 
-    private ListView mListView;
     private TopTracksAdapter mAdapter;
 
     public TopTrackListActivityFragment() {
@@ -37,11 +37,10 @@ public class TopTrackListActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_track_list, container, false);
 
-        mListView = (ListView) view.findViewById(R.id.trackListView);
+        ListView listView = (ListView) view.findViewById(R.id.trackListView);
         mAdapter = new TopTracksAdapter(getActivity());
-        mListView.setAdapter(mAdapter);
-
-
+        listView.setAdapter(mAdapter);
+        listView.setEmptyView(view.findViewById(R.id.empty));
 
         Intent intent = getActivity().getIntent();
         String artistId = intent.getStringExtra("artistId");
@@ -71,12 +70,11 @@ public class TopTrackListActivityFragment extends Fragment {
                 return null;
             }
 
-            // TODO Possibly move this to be a member at the Fragment level
-            // so we don't need to create one every time.
             SpotifyApi api = new SpotifyApi();
             SpotifyService spotifyService = api.getService();
 
             Map<String, Object> options = new HashMap<>();
+            // TODO This could be a preference.
             options.put("country", "US");
 
             Tracks tracks = spotifyService.getArtistTopTrack(strings[0], options);

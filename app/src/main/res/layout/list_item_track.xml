@@ -8,15 +8,15 @@
 
     <ImageView android:id="@+id/albumImage"
         android:layout_gravity="center_vertical"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:contentDescription="Album Art"/>
+        android:layout_width="@dimen/width_image"
+        android:layout_height="@dimen/width_image"
+        android:contentDescription="@string/content_desc_album_art"/>
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_marginLeft="16dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:gravity="center_vertical"
         android:orientation="vertical">
 
