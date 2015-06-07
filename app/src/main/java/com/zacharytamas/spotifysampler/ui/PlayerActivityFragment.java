@@ -18,10 +18,21 @@ import com.zacharytamas.spotifysampler.services.PlayerSubscriber;
 
 import java.util.ArrayList;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+
 /**
  * A placeholder fragment containing a simple view.
  */
 public class PlayerActivityFragment extends Fragment implements PlayerSubscriber {
+
+    @InjectView(R.id.playerSeekBar) SeekBar mSeekBar;
+    @InjectView(R.id.playerPlayPause) ImageView mPlayPause;
+    @InjectView(R.id.playerAlbumArt) ImageView mAlbumArt;
+    @InjectView(R.id.playerTrackName) TextView mTrackName;
+    @InjectView(R.id.playerArtistName) TextView mArtistName;
+
+    PlayerService mService;
 
     public PlayerActivityFragment() {
     }
@@ -31,35 +42,37 @@ public class PlayerActivityFragment extends Fragment implements PlayerSubscriber
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_player, container, false);
 
+        ButterKnife.inject(this, view);
+        mService = PlayerService.getInstance();
+
         view.findViewById(R.id.playerNextArrow).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                PlayerService.getInstance().next();
+                mService.next();
             }
         });
 
         view.findViewById(R.id.playerPreviousArrow).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                PlayerService.getInstance().previous();
+                mService.previous();
             }
         });
 
         view.findViewById(R.id.playerPlayPause).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                PlayerService.getInstance().playPause();
+                mService.playPause();
             }
         });
 
         if (savedInstanceState == null) {
             Intent intent = getActivity().getIntent();
             queuePlayer(intent);
-        } else {
-            // TODO This crashes because this method uses getView() which hasn't
-            // been set yet because this method hasn't returned the view.
-            updateUIForTrack(PlayerService.getInstance().currentlyPlayingTrack());
         }
+
+        updateUIForTrack(mService.currentlyPlayingTrack());
+        updateUIForPlayStatus(mService);
 
         return view;
     }
@@ -93,8 +106,8 @@ public class PlayerActivityFragment extends Fragment implements PlayerSubscriber
             case PlayerService.EVENT_PREPARED:
                 updateUIForTrack(service.currentlyPlayingTrack());
                 break;
-            case PlayerService.EVENT_TRACK_COMPLETED:
-                if (!service.hasNextTrack()) getActivity().finish();
+            case PlayerService.EVENT_PLAYLIST_END:
+                getActivity().finish();
                 break;
             case PlayerService.EVENT_PROGRESS:
                 updateUIForProgress(service);
@@ -107,29 +120,21 @@ public class PlayerActivityFragment extends Fragment implements PlayerSubscriber
     }
 
     private void updateUIForProgress(PlayerService service) {
-        SeekBar seekBar = (SeekBar) getView().findViewById(R.id.playerSeekBar);
-        seekBar.setMax(100);
-        seekBar.setProgress(service.getProgress());
+        mSeekBar.setMax(100);
+        mSeekBar.setProgress(service.getProgress());
     }
 
     private void updateUIForPlayStatus(PlayerService service) {
-        ImageView playPause = (ImageView) getView().findViewById(R.id.playerPlayPause);
         if (service.isPlaying()) {
-            playPause.setImageResource(R.drawable.uamp_ic_pause_white_48dp);
+            mPlayPause.setImageResource(R.drawable.uamp_ic_pause_white_48dp);
         } else {
-            playPause.setImageResource(R.drawable.uamp_ic_play_arrow_white_48dp);
+            mPlayPause.setImageResource(R.drawable.uamp_ic_play_arrow_white_48dp);
         }
     }
 
     private void updateUIForTrack(SpotifyTrack spotifyTrack) {
-        // TODO Don't look these up every time.
-        ImageView albumArt = (ImageView) getView().findViewById(R.id.playerAlbumArt);
-        Picasso.with(getActivity()).load(spotifyTrack.albumImageUrl).into(albumArt);
-
-        TextView trackName = (TextView) getView().findViewById(R.id.playerTrackName);
-        trackName.setText(spotifyTrack.name);
-
-        TextView artistName = (TextView) getView().findViewById(R.id.playerArtistName);
-        artistName.setText(spotifyTrack.artistName);
+        Picasso.with(getActivity()).load(spotifyTrack.albumImageUrl).into(mAlbumArt);
+        mTrackName.setText(spotifyTrack.name);
+        mArtistName.setText(spotifyTrack.artistName);
     }
 }
