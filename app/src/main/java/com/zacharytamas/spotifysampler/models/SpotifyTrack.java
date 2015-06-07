@@ -38,6 +38,19 @@ public class SpotifyTrack implements Parcelable {
         this.albumImageThumbUrl = parcel.readString();
     }
 
+    // I really don't like how Java does this. :(
+    // Took a while to get this to work but the Android docs on this were helpful
+    // http://developer.android.com/reference/android/os/Parcelable.html
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public SpotifyTrack createFromParcel(Parcel parcel) {
+            return new SpotifyTrack(parcel);
+        }
+
+        public SpotifyTrack[] newArray(int size) {
+            return new SpotifyTrack[size];
+        }
+    };
+
     @Override
     public int describeContents() {
         return 0;

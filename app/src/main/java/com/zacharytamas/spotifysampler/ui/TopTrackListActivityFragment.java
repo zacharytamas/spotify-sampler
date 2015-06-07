@@ -3,7 +3,6 @@ package com.zacharytamas.spotifysampler.ui;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
@@ -55,7 +54,8 @@ public class TopTrackListActivityFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(getActivity(), PlayerActivity.class);
-                intent.putParcelableArrayListExtra(PlayerService.EXTRA_PLAYLIST, (ArrayList<? extends Parcelable>) mArtistTracks);
+                intent.putParcelableArrayListExtra(PlayerService.EXTRA_PLAYLIST, mArtistTracks);
+                startActivity(intent);
             }
         });
 
