@@ -2,14 +2,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.zacharytamas.spotifysampler.activities.TopTrackListActivityFragment">
+    android:background="@color/listViewBackground"
+    tools:context="com.zacharytamas.spotifysampler.ui.TopTrackListActivityFragment">
 
     <ListView android:id="@+id/trackListView"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:divider="#1f1f1f"/>
 
     <TextView android:id="@+id/empty"
         android:layout_width="wrap_content"

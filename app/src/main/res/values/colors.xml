@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="spotifyGreen">#72B600</color>
+    <color name="appBarColor">#222225</color>
+    <color name="statusBarColor">#1A191D</color>
+    <color name="listViewBackground">#131313</color>
+</resources>

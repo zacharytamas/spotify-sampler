@@ -10,9 +10,10 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".activities.ArtistSearchActivity"
+            android:name=".ui.ArtistSearchActivity"
+            android:label="@string/app_name"
             android:launchMode="singleTop"
-            android:label="@string/app_name" >
+            android:theme="@style/AppTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -20,12 +21,16 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.TopTrackListActivity"
+            android:name=".ui.TopTrackListActivity"
             android:label="@string/title_activity_track_list"
-            android:parentActivityName=".activities.ArtistSearchActivity" >
+            android:parentActivityName=".ui.ArtistSearchActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.zacharytamas.spotifysampler.activities.ArtistSearchActivity" />
+                android:value="com.zacharytamas.spotifysampler.ui.ArtistSearchActivity" />
+        </activity>
+        <activity
+            android:name=".ui.PlayerActivity"
+            android:label="@string/title_activity_player" >
         </activity>
     </application>
 
