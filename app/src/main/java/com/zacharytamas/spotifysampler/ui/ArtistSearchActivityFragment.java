@@ -1,4 +1,4 @@
-package com.zacharytamas.spotifysampler.activities;
+package com.zacharytamas.spotifysampler.ui;
 
 import android.content.Intent;
 import android.os.AsyncTask;

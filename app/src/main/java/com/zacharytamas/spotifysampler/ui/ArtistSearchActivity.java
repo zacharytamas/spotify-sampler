@@ -1,4 +1,4 @@
-package com.zacharytamas.spotifysampler.activities;
+package com.zacharytamas.spotifysampler.ui;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
