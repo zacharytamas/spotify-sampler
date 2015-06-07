@@ -15,7 +15,9 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:hint="@string/artist_search_hint"
-        android:lines="1" />
+        android:lines="1"
+        android:textColor="@color/white"
+        android:textColorHint="@color/grey"/>
 
     <ListView android:id="@+id/artistListView"
         android:layout_width="fill_parent"

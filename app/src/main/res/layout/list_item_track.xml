@@ -28,7 +28,7 @@
         <TextView android:id="@+id/albumTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#B8B8B8"/>
+            android:textColor="@color/grey"/>
     </LinearLayout>
 
 
