@@ -43,7 +43,11 @@ public class TopTracksAdapter extends ArrayAdapter<SpotifyTrack> {
         holder.albumTitle.setText(track.albumName);
         holder.trackTitle.setText(track.name);
 
-        Picasso.with(getContext()).load(track.albumImageThumbUrl).into(holder.albumImage);
+        if (track.albumImageThumbUrl != null) {
+            Picasso.with(getContext()).load(track.albumImageThumbUrl).into(holder.albumImage);
+        } else {
+            holder.albumImage.setImageResource(R.drawable.ic_default_art);
+        }
 
         return convertView;
     }
