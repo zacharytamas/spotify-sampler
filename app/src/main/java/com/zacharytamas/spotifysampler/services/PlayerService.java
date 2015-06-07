@@ -12,6 +12,8 @@ import com.zacharytamas.spotifysampler.models.SpotifyTrack;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by zacharytamas on 6/6/15.
@@ -22,6 +24,10 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     public static final String EVENT_PREPARED = "player-prepared";
     public static final String EVENT_TRACK_COMPLETED = "player-track-completed";
     public static final String EVENT_STARTED = "player-started";
+    public static final String EVENT_SEEK_TRACK = "player-seek-track";
+    public static final String EVENT_PLAY = "player-play";
+    public static final String EVENT_PAUSED = "player-paused";
+    public static final String EVENT_PROGRESS = "player-progress";
 
     private static final int PLAYLIST_SEEK_FORWARD = 1;
     private static final int PLAYLIST_SEEK_BACKWARD = -1;
@@ -38,6 +44,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     private int mTrackIndex;
     private MediaPlayer mPlayer;
     private WifiManager.WifiLock mWifiLock;
+    private Timer mTimer;
 
     @Override
     public void onCreate() {
@@ -77,6 +84,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
     private void seekTrack(SpotifyTrack track) {
         try {
+            this.fire(EVENT_SEEK_TRACK);
             mPlayer.stop();
             mPlayer.reset();
             mPlayer.setDataSource(track.previewUrl);
@@ -112,6 +120,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
     public void play() {
         mPlayer.start();
+        this.fire(EVENT_PLAY);
     }
 
     public boolean hasNextTrack() {
@@ -120,6 +129,28 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
     public boolean hasPreviousTrack() {
         return mTrackIndex != 0;
+    }
+
+    public void playPause() {
+        if (mPlayer.isPlaying()) {
+            mPlayer.pause();
+            this.fire(EVENT_PAUSED);
+        } else {
+            mPlayer.start();
+            this.fire(EVENT_PLAY);
+        }
+    }
+
+    public boolean isPlaying() {
+        return mPlayer.isPlaying();
+    }
+
+    public int getDuration() {
+        return mPlayer.getDuration();
+    }
+
+    public int getCurrentPosition() {
+        return mPlayer.getCurrentPosition();
     }
 
     public void next() {
@@ -173,17 +204,35 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     public void onPrepared(MediaPlayer mediaPlayer) {
         this.fire(EVENT_PREPARED);
         mediaPlayer.start();
-        this.fire(EVENT_STARTED);
+        this.fire(EVENT_PLAY);
+
+        // I don't like this... why can't this thing just have proper Progress events?
+        mTimer = new Timer();
+        int interval = mediaPlayer.getDuration() / 100;
+
+        mTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                fire(EVENT_PROGRESS);
+            }
+        }, 0, interval);
     }
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
         next();
+        mTimer.cancel();
         this.fire(EVENT_TRACK_COMPLETED);
     }
 
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    public int getProgress() {
+        int position = mPlayer.getCurrentPosition();
+        float duration = mPlayer.getDuration();
+        return (int) (position / duration * 100);
     }
 }
