@@ -55,6 +55,7 @@ public class TopTrackListActivityFragment extends Fragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(getActivity(), PlayerActivity.class);
                 intent.putParcelableArrayListExtra(PlayerService.EXTRA_PLAYLIST, mArtistTracks);
+                intent.putExtra(PlayerService.EXTRA_TRACK_NUMBER, i);
                 startActivity(intent);
             }
         });

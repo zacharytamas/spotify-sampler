@@ -15,6 +15,8 @@ public class SpotifyTrack implements Parcelable {
     public String albumName;
     public String albumImageUrl;
     public String albumImageThumbUrl;
+    public String previewUrl;
+    public String artistName;
 
     public SpotifyTrack(Track track) {
         this.name = track.name;
@@ -29,6 +31,9 @@ public class SpotifyTrack implements Parcelable {
             // the largest if there only happens to be one (1 - 1 is 0 index)
         }
 
+        this.previewUrl = track.preview_url;
+        // TODO Should probably format this artist array as a comma-separated string
+        this.artistName = track.artists.get(0).name;
     }
 
     public SpotifyTrack(Parcel parcel) {
@@ -36,6 +41,8 @@ public class SpotifyTrack implements Parcelable {
         this.albumName = parcel.readString();
         this.albumImageUrl = parcel.readString();
         this.albumImageThumbUrl = parcel.readString();
+        this.previewUrl = parcel.readString();
+        this.artistName = parcel.readString();
     }
 
     // I really don't like how Java does this. :(
@@ -62,5 +69,7 @@ public class SpotifyTrack implements Parcelable {
         parcel.writeString(this.albumName);
         parcel.writeString(this.albumImageUrl);
         parcel.writeString(this.albumImageThumbUrl);
+        parcel.writeString(this.previewUrl);
+        parcel.writeString(this.artistName);
     }
 }
