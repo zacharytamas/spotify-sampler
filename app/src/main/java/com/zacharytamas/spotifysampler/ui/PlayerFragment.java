@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -29,6 +30,7 @@ import butterknife.InjectView;
  */
 public class PlayerFragment extends DialogFragment implements PlayerSubscriber {
 
+    public static final String PLAYER_FRAGMENT_TAG = "player-fragment";
     @InjectView(R.id.playerSeekBar) SeekBar mSeekBar;
     @InjectView(R.id.playerPlayPause) ImageView mPlayPause;
     @InjectView(R.id.playerAlbumArt) ImageView mAlbumArt;
@@ -36,6 +38,7 @@ public class PlayerFragment extends DialogFragment implements PlayerSubscriber {
     @InjectView(R.id.playerArtistName) TextView mArtistName;
 
     PlayerService mService;
+    static boolean hasOpenedDialog = false;
 
     public PlayerFragment() {
     }
@@ -44,13 +47,19 @@ public class PlayerFragment extends DialogFragment implements PlayerSubscriber {
         PlayerFragment player = new PlayerFragment();
         FragmentManager fm = context.getSupportFragmentManager();
 
+        // Don't show more than one.
+        FragmentTransaction ft = fm.beginTransaction();
+        Fragment prev = fm.findFragmentByTag(PLAYER_FRAGMENT_TAG);
+        if (prev != null) ft.remove(prev);
+        ft.commit();
+
         if (asDialog) {
-            player.show(fm, "player-fragment");
+            player.show(fm, PLAYER_FRAGMENT_TAG);
         } else {
             // http://developer.android.com/guide/topics/ui/dialogs.html#FullscreenDialog
             FragmentTransaction transaction = fm.beginTransaction();
             transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            transaction.add(android.R.id.content, player)
+            transaction.add(android.R.id.content, player, PLAYER_FRAGMENT_TAG)
                     .addToBackStack(null).commit();
         }
     }
@@ -85,8 +94,27 @@ public class PlayerFragment extends DialogFragment implements PlayerSubscriber {
             }
         });
 
-        updateUIForTrack(mService.currentlyPlayingTrack());
+        updateUIForTrack(mService.getCurrentlyPlayingTrack());
         updateUIForPlayStatus(mService);
+
+        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            int originalProgress;
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                originalProgress = seekBar.getProgress();
+            }
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int arg1, boolean fromUser) {
+                if (fromUser == true) seekBar.setProgress(originalProgress);
+            }
+        });
 
         return view;
     }
@@ -102,7 +130,10 @@ public class PlayerFragment extends DialogFragment implements PlayerSubscriber {
     @Override
     public void onStart() {
         super.onStart();
-        PlayerService.getInstance().subscribe(this);
+        PlayerService service = PlayerService.getInstance();
+        service.subscribe(this);
+        updateUIForPlayStatus(service);
+        updateUIForTrack(service.getCurrentlyPlayingTrack());
     }
 
     @Override
@@ -116,7 +147,7 @@ public class PlayerFragment extends DialogFragment implements PlayerSubscriber {
         switch (event) {
             case PlayerService.EVENT_SEEK_TRACK:
             case PlayerService.EVENT_PREPARED:
-                updateUIForTrack(service.currentlyPlayingTrack());
+                updateUIForTrack(service.getCurrentlyPlayingTrack());
                 break;
             case PlayerService.EVENT_PLAYLIST_END:
                 dismiss();

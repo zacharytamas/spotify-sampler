@@ -25,7 +25,7 @@ public class ArtistSearchActivity extends ActionBarActivity {
 
     @InjectView(R.id.searchBox) EditText mSearchBox;
     ArtistSearchActivityFragment mArtistSearchFragment;
-    private MenuItem nowPlayingItem;
+    public MenuItem nowPlayingItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -128,7 +128,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
         mNotification.setLatestEventInfo(getApplicationContext(),
                 "Spotify Sampler",
-                "Playing " + currentlyPlayingTrack().name, intent);
+                "Playing " + getCurrentlyPlayingTrack().name, intent);
     }
 
     ////////////////////////////////////////////////////////////////
@@ -211,7 +211,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         }
     }
 
-    public SpotifyTrack currentlyPlayingTrack() {
+    public SpotifyTrack getCurrentlyPlayingTrack() {
         if (mTrackIndex >= 0) {
             return mPlaylist.get(mTrackIndex);
         }

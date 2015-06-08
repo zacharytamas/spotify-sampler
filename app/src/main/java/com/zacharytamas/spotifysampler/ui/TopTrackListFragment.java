@@ -58,6 +58,15 @@ public class TopTrackListFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                try {
+                    ((TopTrackListActivity) getActivity()).nowPlayingItem.setVisible(true);
+                } catch (ClassCastException error) {
+                    // We must be contained in the ArtistSearchActivity on tablet.
+                    ((ArtistSearchActivity) getActivity()).nowPlayingItem.setVisible(true);
+                    // I could make a protocol that I make both these implement and this would be
+                    // simpler but at this point I'm tired. I don't feel really prepared for all
+                    // the nuances of this project, even after completing the supplemental course.
+                }
                 PlayerService.getInstance().playNewPlaylistAtIndex(mArtistTracks, i);
                 PlayerFragment.showInContext(getActivity(), mDialogMode);
             }

@@ -14,7 +14,7 @@ public class TopTrackListActivity extends ActionBarActivity {
     public static final String EXTRA_ARTIST_ID = "artistId";
     public static final String EXTRA_ARTIST_NAME = "artistName";
 
-    private MenuItem nowPlayingItem;
+    public MenuItem nowPlayingItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
