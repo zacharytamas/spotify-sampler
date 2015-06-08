@@ -11,14 +11,13 @@ import android.widget.EditText;
 
 import com.zacharytamas.spotifysampler.R;
 import com.zacharytamas.spotifysampler.services.PlayerService;
-import com.zacharytamas.spotifysampler.services.PlayerSubscriber;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import kaaes.spotify.webapi.android.models.Artist;
 
 
-public class ArtistSearchActivity extends ActionBarActivity implements PlayerSubscriber {
+public class ArtistSearchActivity extends ActionBarActivity {
 
     private static final String FRAGMENT_TAG = "topTracksFragment";
     static final String QUERY_KEY = "query";
@@ -78,8 +77,7 @@ public class ArtistSearchActivity extends ActionBarActivity implements PlayerSub
     public boolean onOptionsItemSelected(MenuItem item) {
 
         if (item.getItemId() == R.id.action_now_playing) {
-            Intent intent = new Intent(this, PlayerActivity.class);
-            startActivity(intent);
+            PlayerFragment.showInContext(this, mTwoPane);
         }
 
         return super.onOptionsItemSelected(item);
@@ -88,8 +86,7 @@ public class ArtistSearchActivity extends ActionBarActivity implements PlayerSub
     @Override
     protected void onResume() {
         PlayerService service = PlayerService.getInstance();
-        if (service != null) {
-            service.subscribe(this);
+        if (service != null && nowPlayingItem != null) {
             nowPlayingItem.setVisible(service.isPlaying());
         }
         super.onResume();
@@ -97,11 +94,6 @@ public class ArtistSearchActivity extends ActionBarActivity implements PlayerSub
 
     @Override
     protected void onStop() {
-        PlayerService service = PlayerService.getInstance();
-        if (service != null) {
-            service.unsubscribe(this);
-            nowPlayingItem.setVisible(service.isPlaying());
-        }
         super.onStop();
     }
 
@@ -111,16 +103,6 @@ public class ArtistSearchActivity extends ActionBarActivity implements PlayerSub
         super.onSaveInstanceState(outState);
     }
 
-    @Override
-    public void onPlayerEvent(String event, PlayerService service) {
-        switch (event) {
-            case PlayerService.EVENT_PROGRESS:
-            case PlayerService.EVENT_TRACK_COMPLETED:
-            case PlayerService.EVENT_PLAYLIST_END:
-                nowPlayingItem.setVisible(service.isPlaying());
-        }
-    }
-
     public void onArtistChosen(Artist artist) {
         if (mTwoPane) {
             Bundle bundle = new Bundle();
@@ -128,6 +110,8 @@ public class ArtistSearchActivity extends ActionBarActivity implements PlayerSub
             bundle.putString(TopTrackListActivity.EXTRA_ARTIST_NAME, artist.name);
 
             TopTrackListFragment fragment = new TopTrackListFragment();
+            fragment.setDialogMode(true);
+
             fragment.setArguments(bundle);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.artistSearch_topTracksContainer, fragment, FRAGMENT_TAG)

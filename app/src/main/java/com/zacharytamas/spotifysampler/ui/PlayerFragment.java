@@ -4,6 +4,9 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +38,21 @@ public class PlayerFragment extends DialogFragment implements PlayerSubscriber {
     PlayerService mService;
 
     public PlayerFragment() {
+    }
+
+    public static void showInContext(FragmentActivity context, boolean asDialog) {
+        PlayerFragment player = new PlayerFragment();
+        FragmentManager fm = context.getSupportFragmentManager();
+
+        if (asDialog) {
+            player.show(fm, "player-fragment");
+        } else {
+            // http://developer.android.com/guide/topics/ui/dialogs.html#FullscreenDialog
+            FragmentTransaction transaction = fm.beginTransaction();
+            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            transaction.add(android.R.id.content, player)
+                    .addToBackStack(null).commit();
+        }
     }
 
     @Override

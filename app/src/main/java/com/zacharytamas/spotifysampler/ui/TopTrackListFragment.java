@@ -3,7 +3,6 @@ package com.zacharytamas.spotifysampler.ui;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -58,9 +57,7 @@ public class TopTrackListFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 PlayerService.getInstance().playNewPlaylistAtIndex(mArtistTracks, i);
-                FragmentManager fm = getActivity().getSupportFragmentManager();
-                PlayerFragment player = new PlayerFragment();
-                player.show(fm, PLAYER_FRAG_TAG);
+                PlayerFragment.showInContext(getActivity(), mDialogMode);
             }
         });
 
