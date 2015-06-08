@@ -42,18 +42,35 @@ public class TopTrackListActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_player, menu);
-
         nowPlayingItem = menu.findItem(R.id.action_now_playing);
-        return true;
-    }
 
-    @Override
-    protected void onResume() {
         PlayerService service = PlayerService.getInstance();
         if (service != null && nowPlayingItem != null) {
             nowPlayingItem.setVisible(service.isPlaying());
         }
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_now_playing) {
+            PlayerFragment.showInContext(this, false);
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
         super.onResume();
     }
 
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        PlayerService service = PlayerService.getInstance();
+        if (service != null && nowPlayingItem != null) {
+            nowPlayingItem.setVisible(service.isPlaying());
+        }
+    }
 }
