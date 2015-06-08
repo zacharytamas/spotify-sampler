@@ -1,11 +1,13 @@
 package com.zacharytamas.spotifysampler.ui;
 
-import android.content.Intent;
+import android.app.Dialog;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -16,15 +18,13 @@ import com.zacharytamas.spotifysampler.models.SpotifyTrack;
 import com.zacharytamas.spotifysampler.services.PlayerService;
 import com.zacharytamas.spotifysampler.services.PlayerSubscriber;
 
-import java.util.ArrayList;
-
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class PlayerActivityFragment extends Fragment implements PlayerSubscriber {
+public class PlayerFragment extends DialogFragment implements PlayerSubscriber {
 
     @InjectView(R.id.playerSeekBar) SeekBar mSeekBar;
     @InjectView(R.id.playerPlayPause) ImageView mPlayPause;
@@ -34,7 +34,7 @@ public class PlayerActivityFragment extends Fragment implements PlayerSubscriber
 
     PlayerService mService;
 
-    public PlayerActivityFragment() {
+    public PlayerFragment() {
     }
 
     @Override
@@ -43,6 +43,7 @@ public class PlayerActivityFragment extends Fragment implements PlayerSubscriber
         View view = inflater.inflate(R.layout.fragment_player, container, false);
 
         ButterKnife.inject(this, view);
+        mSeekBar.setMax(100);
         mService = PlayerService.getInstance();
 
         view.findViewById(R.id.playerNextArrow).setOnClickListener(new View.OnClickListener() {
@@ -66,15 +67,18 @@ public class PlayerActivityFragment extends Fragment implements PlayerSubscriber
             }
         });
 
-        if (savedInstanceState == null) {
-            Intent intent = getActivity().getIntent();
-            queuePlayer(intent);
-        }
-
         updateUIForTrack(mService.currentlyPlayingTrack());
         updateUIForPlayStatus(mService);
 
         return view;
+    }
+
+    @NonNull @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.getWindow().setLayout(300, 500);
+        return dialog;
     }
 
     @Override
@@ -89,25 +93,15 @@ public class PlayerActivityFragment extends Fragment implements PlayerSubscriber
         PlayerService.getInstance().unsubscribe(this);
     }
 
-    private void queuePlayer(Intent originalIntent) {
-        ArrayList<SpotifyTrack> playlist = originalIntent.getParcelableArrayListExtra(
-                PlayerService.EXTRA_PLAYLIST);
-
-        PlayerService.getInstance().playNewPlaylistAtIndex(playlist,
-                originalIntent.getIntExtra(PlayerService.EXTRA_TRACK_NUMBER, 0));
-    }
-
     @Override
     public void onPlayerEvent(String event, PlayerService service) {
         switch (event) {
             case PlayerService.EVENT_SEEK_TRACK:
-                updateUIForTrack(service.currentlyPlayingTrack());
-                break;
             case PlayerService.EVENT_PREPARED:
                 updateUIForTrack(service.currentlyPlayingTrack());
                 break;
             case PlayerService.EVENT_PLAYLIST_END:
-                getActivity().finish();
+                dismiss();
                 break;
             case PlayerService.EVENT_PROGRESS:
                 updateUIForProgress(service);
@@ -120,7 +114,6 @@ public class PlayerActivityFragment extends Fragment implements PlayerSubscriber
     }
 
     private void updateUIForProgress(PlayerService service) {
-        mSeekBar.setMax(100);
         mSeekBar.setProgress(service.getProgress());
     }
 

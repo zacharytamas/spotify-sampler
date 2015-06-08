@@ -4,6 +4,7 @@
     <color name="appBarColor">#222225</color>
     <color name="statusBarColor">#1A191D</color>
     <color name="listViewBackground">#131313</color>
+    <color name="listViewBackgroundLight">#333333</color>
     <color name="white">#ffffff</color>
     <color name="grey">#B8B8B8</color>
 </resources>

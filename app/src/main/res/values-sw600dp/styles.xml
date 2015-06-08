@@ -1,16 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="colorPrimary">@color/appBarColor</item>
-        <item name="colorPrimaryDark">@color/statusBarColor</item>
-        <item name="colorAccent">@color/spotifyGreen</item>
-    </style>
 
     <style name="fragment_track_list">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:background">@color/listViewBackground</item>
+        <item name="android:background">@color/listViewBackgroundLight</item>
     </style>
 
     <style name="list_artist_search">
@@ -20,6 +14,6 @@
         <item name="android:layout_alignParentTop">true</item>
         <item name="android:divider">#1f1f1f</item>
         <item name="android:dividerHeight">1dp</item>
+        <item name="android:choiceMode">singleChoice</item>
     </style>
-
 </resources>

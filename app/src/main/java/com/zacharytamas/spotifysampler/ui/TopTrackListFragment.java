@@ -1,9 +1,9 @@
 package com.zacharytamas.spotifysampler.ui;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,17 +25,21 @@ import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.Tracks;
+import retrofit.RetrofitError;
 
 /**
  * Fragment providing functionality that lists all an Artist's
  * top tracks, if available.
  */
-public class TopTrackListActivityFragment extends Fragment {
+public class TopTrackListFragment extends Fragment {
 
+    private static final String PLAYER_FRAG_TAG = "player-fragment";
+    private static final String KEY_TRACKS = "key-tracks";
     private TopTracksAdapter mAdapter;
     private ArrayList<SpotifyTrack> mArtistTracks;
+    private boolean mDialogMode = false;
 
-    public TopTrackListActivityFragment() {
+    public TopTrackListFragment() {
     }
 
     @Override
@@ -53,33 +57,49 @@ public class TopTrackListActivityFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent intent = new Intent(getActivity(), PlayerActivity.class);
-                intent.putParcelableArrayListExtra(PlayerService.EXTRA_PLAYLIST, mArtistTracks);
-                intent.putExtra(PlayerService.EXTRA_TRACK_NUMBER, i);
-                startActivity(intent);
+                PlayerService.getInstance().playNewPlaylistAtIndex(mArtistTracks, i);
+                FragmentManager fm = getActivity().getSupportFragmentManager();
+                PlayerFragment player = new PlayerFragment();
+                player.show(fm, PLAYER_FRAG_TAG);
             }
         });
 
-        Intent intent = getActivity().getIntent();
-        String artistId = intent.getStringExtra("artistId");
-        String artistName = intent.getStringExtra("artistName");
+        Bundle args = getArguments();
 
-        if (artistName != null) {
-            ActionBarActivity activity = (ActionBarActivity) getActivity();
-            activity.getSupportActionBar().setSubtitle(artistName);
-        }
+        if (args != null) {
+            String artistId = args.getString(TopTrackListActivity.EXTRA_ARTIST_ID);
+            String artistName = args.getString(TopTrackListActivity.EXTRA_ARTIST_NAME);
 
-        if (artistId != null) {
-            this.fetchTracks(artistId);
+            if (artistName != null) {
+                ActionBarActivity activity = (ActionBarActivity) getActivity();
+                activity.getSupportActionBar().setSubtitle(artistName);
+            }
+
+            if (artistId != null) {
+                if (savedInstanceState == null) {
+                    this.fetchTracks(artistId);
+                } else {
+                    mArtistTracks = savedInstanceState.getParcelableArrayList(KEY_TRACKS);
+                    mAdapter.addAll(mArtistTracks);
+                }
+            }
         }
 
         return view;
     }
 
-
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(KEY_TRACKS, mArtistTracks);
+    }
 
     private void fetchTracks(String artistId) {
         new FetchTrackTask().execute(artistId);
+    }
+
+    public void setDialogMode(boolean mDialogMode) {
+        this.mDialogMode = mDialogMode;
     }
 
     private class FetchTrackTask extends AsyncTask<String, Void, List<Track>> {
@@ -96,8 +116,13 @@ public class TopTrackListActivityFragment extends Fragment {
             Map<String, Object> options = new HashMap<>();
             // TODO This could be a preference.
             options.put("country", "US");
+            Tracks tracks;
 
-            Tracks tracks = spotifyService.getArtistTopTrack(strings[0], options);
+            try {
+                tracks = spotifyService.getArtistTopTrack(strings[0], options);
+            } catch (RetrofitError e) {
+                return this.doInBackground(strings);
+            }
 
             return tracks.tracks;
         }

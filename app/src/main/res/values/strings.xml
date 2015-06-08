@@ -8,4 +8,5 @@
     <string name="empty_top_tracks">This artist has no Top Tracks. :(</string>
     <string name="content_desc_album_art">Album Art</string>
     <string name="title_activity_player">Now Playing</string>
+    <string name="action_now_playing">Now Playing</string>
 </resources>

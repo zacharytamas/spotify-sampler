@@ -1,11 +1,8 @@
 package com.zacharytamas.spotifysampler.ui;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +13,7 @@ import android.widget.ListView;
 import com.zacharytamas.spotifysampler.R;
 import com.zacharytamas.spotifysampler.adapters.ArtistSearchAdapter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
@@ -28,20 +26,14 @@ import kaaes.spotify.webapi.android.models.Artist;
  */
 public class ArtistSearchActivityFragment extends Fragment {
 
-    static final String QUERY_KEY = "query";
-
+    private static final String KEY_ARTISTS = "KEY_ARTISTS";
     private ListView mListView;
     private ArtistSearchAdapter mAdapter;
     private EditText mSearchBox;
     private FetchArtistsTask mFetchTask;
+    private List<Artist> mArtists;
 
     public ArtistSearchActivityFragment() {
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putString(QUERY_KEY, mSearchBox.getText().toString());
-        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -57,41 +49,21 @@ public class ArtistSearchActivityFragment extends Fragment {
         // TODO I don't like this but it will do for the moment.
         view.findViewById(R.id.empty).setVisibility(View.INVISIBLE);
 
-        mSearchBox = (EditText) view.findViewById(R.id.searchBox);
-        mSearchBox.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (charSequence.length() > 0) {
-                    fetchArtists(charSequence.toString());
-                } else {
-                    mAdapter.clear();
-                    view.findViewById(R.id.empty).setVisibility(View.INVISIBLE);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) { }
-        });
-
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Artist artist = (Artist) adapterView.getAdapter().getItem(i);
-                Intent intent = new Intent(getActivity(), TopTrackListActivity.class);
-                intent.putExtra("artistId", artist.id);
-                intent.putExtra("artistName", artist.name);
-                startActivity(intent);
+                ArtistSearchActivity activity = (ArtistSearchActivity) getActivity();
+                activity.onArtistChosen(artist);
             }
         });
 
-        if (savedInstanceState != null) {
-            mSearchBox.setText(savedInstanceState.getString(QUERY_KEY, ""));
-        }
-
         return view;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 
     public void fetchArtists(String query) {
@@ -117,13 +89,18 @@ public class ArtistSearchActivityFragment extends Fragment {
             SpotifyApi api = new SpotifyApi();
             SpotifyService spotifyService = api.getService();
 
-            return spotifyService.searchArtists(strings[0]).artists.items;
+            if (strings[0].length() > 0) {
+                return spotifyService.searchArtists(strings[0]).artists.items;
+            } else {
+                return new ArrayList();
+            }
         }
 
         @Override
         protected void onPostExecute(List list) {
             mAdapter.clear();
             mAdapter.addAll(list);
+            mArtists = list;
         }
     }
 
