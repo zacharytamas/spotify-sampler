@@ -32,6 +32,8 @@ public class ArtistSearchActivityFragment extends Fragment {
     private EditText mSearchBox;
     private FetchArtistsTask mFetchTask;
     private List<Artist> mArtists;
+    private final SpotifyApi api = new SpotifyApi();
+    private final SpotifyService spotifyService = api.getService();
 
     public ArtistSearchActivityFragment() {
     }
@@ -83,11 +85,6 @@ public class ArtistSearchActivityFragment extends Fragment {
             if (strings.length != 1) {
                 return null;
             }
-
-            // TODO Possibly move this to be a member at the Fragment level
-            // so we don't need to create one every time. Maybe even a singleton app-wide.
-            SpotifyApi api = new SpotifyApi();
-            SpotifyService spotifyService = api.getService();
 
             if (strings[0].length() > 0) {
                 return spotifyService.searchArtists(strings[0]).artists.items;
