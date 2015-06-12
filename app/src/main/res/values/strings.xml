@@ -9,4 +9,5 @@
     <string name="content_desc_album_art">Album Art</string>
     <string name="title_activity_player">Now Playing</string>
     <string name="action_now_playing">Now Playing</string>
+    <string name="error_fetch_artist_no_network">Could not fetch artists. Do you have an Internet connection?</string>
 </resources>

@@ -22,7 +22,7 @@
             <!--android:layout_height="wrap_content"-->
             <!--android:src="@drawable/ic_search_black_48dp"/>-->
 
-        <TextView
+        <TextView android:id="@+id/emptyText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/activity_vertical_margin"

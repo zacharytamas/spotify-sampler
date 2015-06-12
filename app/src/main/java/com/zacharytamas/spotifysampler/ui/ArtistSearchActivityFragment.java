@@ -8,7 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.zacharytamas.spotifysampler.R;
 import com.zacharytamas.spotifysampler.adapters.ArtistSearchAdapter;
@@ -20,6 +22,7 @@ import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.ArtistsPager;
+import retrofit.RetrofitError;
 
 
 /**
@@ -32,9 +35,11 @@ public class ArtistSearchActivityFragment extends Fragment {
     private ArtistSearchAdapter mAdapter;
     private EditText mSearchBox;
     private FetchArtistsTask mFetchTask;
+    private LinearLayout mEmptyView;
     private List<Artist> mArtists;
     private final SpotifyApi api = new SpotifyApi();
     private final SpotifyService spotifyService = api.getService();
+    private TextView mEmptyTextView;
 
     public ArtistSearchActivityFragment() {
     }
@@ -50,7 +55,9 @@ public class ArtistSearchActivityFragment extends Fragment {
         mListView.setEmptyView(view.findViewById(R.id.empty));
         // Hide it by default until they type a query that has no results.
         // TODO I don't like this but it will do for the moment.
-        view.findViewById(R.id.empty).setVisibility(View.INVISIBLE);
+        mEmptyView = (LinearLayout) view.findViewById(R.id.empty);
+        mEmptyTextView = (TextView) mEmptyView.findViewById(R.id.emptyText);
+        mEmptyView.setVisibility(View.INVISIBLE);
 
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -75,11 +82,26 @@ public class ArtistSearchActivityFragment extends Fragment {
         if (mFetchTask != null && mFetchTask.getStatus() != AsyncTask.Status.FINISHED) {
             mFetchTask.cancel(true);
         }
+        updateEmptyView("loading");
         mFetchTask = new FetchArtistsTask();
         mFetchTask.execute(query);
     }
 
+    private void updateEmptyView(String status) {
+        // TODO these should be constants, I know
+        if (status == "loading") {
+            mEmptyTextView.setText("Loading results...");
+        } else if (status == "error") {
+            mEmptyTextView.setText(getActivity().getString(R.string.error_fetch_artist_no_network));
+        } else {
+            mEmptyTextView.setText(getActivity().getString(R.string.empty_results));
+        }
+    }
+
     private class FetchArtistsTask extends AsyncTask<String, Void, List> {
+
+        String mStatus;
+
         @Override
         protected List doInBackground(String... strings) {
 
@@ -88,19 +110,23 @@ public class ArtistSearchActivityFragment extends Fragment {
             }
 
             if (strings[0].length() > 0) {
-                ArtistsPager artistsPager = spotifyService.searchArtists(strings[0]);
-                if (artistsPager.artists != null) {
-                    return artistsPager.artists.items;
-                } else {
-                    return new ArrayList();
+                try {
+                    ArtistsPager artistsPager = spotifyService.searchArtists(strings[0]);
+                    if (artistsPager.artists != null) {
+                        mStatus = null;
+                        return artistsPager.artists.items;
+                    }
+                } catch (RetrofitError error) {
+                    mStatus = "error";
                 }
-            } else {
-                return new ArrayList();
             }
+
+            return new ArrayList();
         }
 
         @Override
         protected void onPostExecute(List list) {
+            updateEmptyView(mStatus);
             mAdapter.clear();
             mAdapter.addAll(list);
             mArtists = list;
