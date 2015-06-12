@@ -19,6 +19,7 @@ import java.util.List;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Artist;
+import kaaes.spotify.webapi.android.models.ArtistsPager;
 
 
 /**
@@ -87,7 +88,12 @@ public class ArtistSearchActivityFragment extends Fragment {
             }
 
             if (strings[0].length() > 0) {
-                return spotifyService.searchArtists(strings[0]).artists.items;
+                ArtistsPager artistsPager = spotifyService.searchArtists(strings[0]);
+                if (artistsPager.artists != null) {
+                    return artistsPager.artists.items;
+                } else {
+                    return new ArrayList();
+                }
             } else {
                 return new ArrayList();
             }
